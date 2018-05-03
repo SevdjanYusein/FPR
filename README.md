@@ -1,1 +1,1 @@
-# FPR
+Functional Programming in Haskell
