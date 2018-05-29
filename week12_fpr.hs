@@ -1,4 +1,5 @@
-import Data.List
+import Data.List 
+
 {- Алгебричин типове -}
 {-
 Досега сме ползвали наготово различни типове - Bool, Int, Char, [Char], etc.
@@ -93,13 +94,14 @@ data Record = Record Student Subject Note
 Дефинирайте функцията goodStudentsAverage:: [Record] -> Note, която връща
 средната стойност от оценките на всички ученици, които имат поне една шестица.
 -}
+avg :: (Fractional a) => [a] -> a
+avg xs = sum xs / fromIntegral (length xs)
 
 goodStudentsAverage:: [Record] -> Note
-goodStudentsAverage records = sum goodStudentsNotes / fromIntegral $ length goodStudentsNotes
-                  
-                  where 
-                   goodStudents = nub [st | (Record st sub note) <- records, note == 6]
-                   goodStudentsNotes = [note | (Record st sub note) <- records, st `elem` goodStudents]
+goodStudentsAverage records = avg [note | (Record student  _ note) <- records, student `elem` goodStudents] where
+    goodStudents = nub [student | (Record student _ note) <- records, note == 6]
+
+
 {-
 Задача 2. Нека е даден полиморфният алгебричен тип List (дефиниран в пример 1). 
 Дефинирайте (рекурсивно) следните функции:
@@ -120,38 +122,42 @@ goodStudentsAverage records = sum goodStudentsNotes / fromIntegral $ length good
     listMap (+1) (1 `Cons` (2 `Cons` (3 `Cons` Nil))) = 2 `Cons` (3 `Cons` (4 `Cons` Nil))
     listFilter even (1 `Cons` (2 `Cons` (3 `Cons` Nil))) = 2 `Cons` Nil
 -}
--- 2.а.
 mkList :: [a] -> List a
-mxList [] = Nill
-mkList (x:xs) = x `Cons` (mxList xs) 
+mkList [] = Nil
+mkList (x:xs) = x `Cons` (mkList xs)
 
 -- 2.б.
 unList :: List a -> [a]
-unList Nill = []
+unList Nil = []
 unList (x `Cons` xs) = x : (unList xs)
 
 -- 2.в.
 listEmpty :: List a -> Bool
-listEmpty Nill = True
-listEmpty _ = False
+listEmpty Nil = True
+listEmpty _   = False
 
 -- 2.г.
 listHead :: List a -> a
-listHead Nill = error "empty list!"
-listHead (x `Cons` xs) = x
+listHead Nil = error "empty list!"
+listHead (x `Cons` _) = x
 
 -- 2.д.
 listTail :: List a -> List a
-listTail Nill = error "empty list!"
-listTail (x `Cons` xs) = xs
+listTail Nil = error "empty list!"
+listTail (_ `Cons` xs) = xs 
 
 -- 2.e.
 listMap :: (a -> a) -> List a -> List a
+listMap _ Nil = Nil
 listMap f (x `Cons` xs) = f x `Cons` (listMap f xs)
 
 -- 2.ж.
 listFilter :: (a -> Bool) -> List a -> List a
-listFilter p (x `Cons` xs) = if p x then x `Cons` (listFilter p xs) else listFilter p xs
+listFilter _ Nil = Nil
+listFilter f (x `Cons` xs)
+    | f x       = x `Cons` fxs  
+    | otherwise = fxs where
+        fxs = listFilter f xs
 
 
 {- Двоични дървета -}
@@ -166,22 +172,30 @@ listFilter p (x `Cons` xs) = if p x then x `Cons` (listFilter p xs) else listFil
 е). treeNodesAtLevel tree n, която връща списък със стойностите в n-тото ниво на дървото.
 -}
 treeDepth :: (Num b, Ord b) => Tree a -> b
-treeDepth tree = undefined
+treeDepth Empty = 0
+treeDepth (Node _ left right) = 1 + max (treeDepth left) (treeDepth right)
 
 treeCountLeaves :: (Num b) => Tree a -> b
-treeCountLeaves tree = undefined
+treeCountLeaves Empty = 0
+treeCountLeaves (Node _ Empty Empty) = 1
+treeCountLeaves (Node _ left right) = treeCountLeaves left + treeCountLeaves right
 
 treeSum :: Num a => Tree a -> a
-treeSum tree = undefined
+treeSum Empty = 0
+treeSum (Node x left right) = x + treeSum left + treeSum right
 
 treeElem :: Eq a => a -> Tree a -> Bool
-treeElem val tree = undefined
+treeElem _ Empty = False
+treeElem val (Node v left right) = v == val || treeElem val left || treeElem val right
 
 treeNodes :: Tree a -> [a]
-treeNodes tree = undefined
+treeNodes Empty = []
+treeNodes (Node x left right) = x : (treeNodes left ++ treeNodes right)
 
 treeNodesAtLevel :: (Eq b, Num b) => Tree a -> b -> [a]
-treeNodesAtLevel tree n = undefined
+treeNodesAtLevel Empty _ = []
+treeNodesAtLevel (Node x _ _) 0 = [x]
+treeNodesAtLevel (Node _ left right) n = treeNodesAtLevel left (n - 1) ++ treeNodesAtLevel right (n - 1)
 
 
 {-
@@ -191,7 +205,18 @@ findMeanNodes tree, която връща списък с всички нодо�
 и децата на дадения нод.
 -}
 findMeanNodes :: (Eq a, Fractional a) => Tree a -> [a]
-findMeanNodes tree = undefined
+findMeanNodes Empty = []
+findMeanNodes root@(Node val left right) = if val == avg (children root) then val : cs else cs where
+    cs = findMeanNodesHelper val left ++ findMeanNodesHelper val right
+
+-- помощни ф-и:
+children :: Tree a -> [a]
+children tree = treeNodesAtLevel tree 1
+
+findMeanNodesHelper :: (Eq a, Fractional a) => a -> Tree a -> [a]
+findMeanNodesHelper _ Empty = []
+findMeanNodesHelper parent node@(Node val left right) = if val == avg (parent : children node) then val : cs else cs where
+    cs = findMeanNodesHelper val left ++ findMeanNodesHelper val right
 
 
 -- примерни извиквания --
