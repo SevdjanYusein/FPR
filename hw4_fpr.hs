@@ -19,8 +19,7 @@ closestToAverage :: [Measuring] -> [Int]    -- Съставя списък от 
 closestToAverage measurings = [day | (Temp day deg) <- measurings, deg `elem` closest average allDegrees]
                                      where allDegrees = [deg | (Temp day deg) <- measurings]
                                            average = sum allDegrees / fromIntegral (length allDegrees)
-
-
+                                           
 --Задача 2:
 data BTree = Empty | Node Int BTree BTree
      deriving (Read, Show) 
@@ -53,5 +52,5 @@ main = do
                   (Temp 21 23.8),(Temp 26 26.5),
                   (Temp 31 24.5)] -- → 6 или 11 или 21(средната температура е 24.0)
                   
- print$ grandchildrenIncreased (Node 3 (Node 1 (Node 10 Empty Empty) (Node 6 Empty Empty)) 
+ print $ grandchildrenIncreased (Node 3 (Node 1 (Node 10 Empty Empty) (Node 6 Empty Empty)) 
                                (Node 4 Empty (Node 5 Empty (Node 7 Empty Empty))))
