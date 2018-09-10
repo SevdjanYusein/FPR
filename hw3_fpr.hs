@@ -42,7 +42,7 @@ findAssoc (x:xs) key = if (sum $ snd x) == key
 
 nodes :: [(Int, [Int])] -> [Int] -> [Int]
 nodes tree [] = []
-nodes tree (x:xs) = if findAssoc tree x > -1         -- С това условие съсзаваме списък с валидните елементи
+nodes tree (x:xs) = if findAssoc tree x > -1         -- С това условие създаваме списък с валидните елементи
                     then findAssoc tree x  : nodes tree xs 
                     else nodes tree xs
 
