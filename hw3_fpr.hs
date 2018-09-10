@@ -14,7 +14,6 @@ switchsum f g 1 = f
 switchsum f g n = (\x -> if n`mod`2 == 0 
                          then (g x) + switchsum f g (n-1) (g x) 
                          else (f x) + switchsum f g (n-1) (f x))
-
 --Задача 3:
 replaceAssoc :: [Int] -> [(Int, Int)] -> [Int]
 replaceAssoc [] dict = []
